@@ -876,9 +876,7 @@
     </div>
 
     <!-- AUDIO: Beautiful graduation song -->
-    <audio id="bgMusic" loop preload="auto">
-        <source src="background-music.mp3" type="audio/mpeg">
-    </audio>
+    <div id="ytPlayer" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <script>
         // ===== CONFIGURATION =====
@@ -1012,18 +1010,49 @@
             }
         });
 
-        // ===== MUSIC =====
-        const music = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicToggle');
+        // ===== MUSIC - Wake Up Mr. West by Kanye West (YouTube) =====
+        let ytPlayer = null;
+        let ytReady = false;
         let isPlaying = false;
+        const musicBtn = document.getElementById('musicToggle');
+
+        // Load YouTube IFrame API
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+
+        window.onYouTubeIframeAPIReady = function() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '1',
+                width: '1',
+                videoId: 'vpMpA0dfSTI',  // Wake Up Mr. West - Kanye West
+                playerVars: {
+                    autoplay: 0,
+                    loop: 1,
+                    playlist: 'vpMpA0dfSTI',
+                    controls: 0,
+                    disablekb: 1
+                },
+                events: {
+                    'onReady': function(event) {
+                        ytReady = true;
+                        event.target.setVolume(40);
+                    }
+                }
+            });
+        };
 
         musicBtn.addEventListener('click', () => {
+            if (!ytReady || !ytPlayer) {
+                alert('Music is still loading, please try again in a moment 🎵');
+                return;
+            }
             if (isPlaying) {
-                music.pause();
+                ytPlayer.pauseVideo();
                 musicBtn.textContent = '🎵';
                 musicBtn.classList.remove('playing');
             } else {
-                music.play().catch(() => {});
+                ytPlayer.playVideo();
                 musicBtn.textContent = '🔇';
                 musicBtn.classList.add('playing');
             }
