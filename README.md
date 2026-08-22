@@ -1,4 +1,4 @@
-# 🎓 Happy Graduation, Anne! 🎉
+# 🎓 Happy Graduation, Besty! 🎉
 
 A beautiful, interactive graduation webpage created with love for my best friend.
 
