@@ -987,15 +987,32 @@
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changePage(-1);
         });
 
-        // Touch swipe support
+        // Touch swipe support — horizontal swipe only, ignore vertical scrolling
+        let touchStartX = 0;
         let touchStartY = 0;
-        document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; });
+        let touchStartTime = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+
         document.addEventListener('touchend', (e) => {
-            const diff = touchStartY - e.changedTouches[0].clientY;
-            if (Math.abs(diff) > 80) {
-                changePage(diff > 0 ? 1 : -1);
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = endX - touchStartX;
+            const diffY = touchStartY - endY;
+            const elapsed = Date.now() - touchStartTime;
+
+            // Only trigger page change if:
+            // 1. Horizontal swipe is much larger than vertical movement (it's a swipe, not a scroll)
+            // 2. Swipe distance is > 100px (not a tiny flick)
+            // 3. Swipe happened quickly (< 500ms)
+            if (Math.abs(diffX) > 100 && Math.abs(diffX) > Math.abs(diffY) * 1.5 && elapsed < 500) {
+                changePage(diffX > 0 ? -1 : 1);
             }
-        });
+        }, { passive: true });
 
         // ===== LIGHTBOX =====
         function openLightbox(src) {
